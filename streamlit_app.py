@@ -11,8 +11,8 @@ import time
 
 st.set_page_config(page_title="StockWise", layout="wide")
 
-if "last_period" not in st.session_state:
-    st.session_state["last_period"] = None
+if 'current_period' not in st.session_state:
+    st.session_state.current_period = '1d'  # Default to 1 day
 
 
 def search_company(query):
@@ -262,18 +262,14 @@ st.write("---")
 st.subheader("Graph and News")
 
 col1, col2, col3, col4 = st.columns(4)
-with col1:
-    if st.button("1 Day"):
-        st.session_state["last_period"] = "1d"
-with col2:
-    if st.button("1 Week"):
-        st.session_state["last_period"] = "1wk"
-with col3:
-    if st.button("1 Year"):
-        st.session_state["last_period"] = "1y"
-with col4:
-    if st.button("All Time"):
-        st.session_state["last_period"] = "max"
+if st.button("1 Day"):
+    st.session_state.current_period = "1d"
+if st.button("1 Week"):
+    st.session_state.current_period = "1wk"
+if st.button("1 Month"):
+    st.session_state.current_period = "1mo"
+if st.button("1 Year"):
+    st.session_state.current_period = "1y"
 
 
 def display_graph(data, ticker, period):
