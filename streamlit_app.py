@@ -363,10 +363,11 @@ predict_button = st.button("Predict Next 5 Days")
 
 if predict_button:
     st.write(f"Predicting next 5 days for {ticker}")
-    with st.spinner("Making predictions..."):
-        predictions = predict_stock(ticker)
-    if predictions is not None:
-        st.success("Predictions complete!")
+    try:
+        with st.spinner("Making predictions..."):
+            predictions = predict_stock(ticker)
+        if predictions is not None and not predictions.empty:
+            st.success("Predictions complete!")
 
         future_dates = pd.date_range(
             start=data.index[-1] + pd.Timedelta(days=1), periods=5
