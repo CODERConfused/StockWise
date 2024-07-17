@@ -3,16 +3,16 @@ import yfinance as yf
 import datetime
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 import plotly.graph_objs as go
 from sklearn.model_selection import TimeSeriesSplit
 from xgboost import XGBRegressor
 import time
 
-if 'last_period' not in st.session_state:
-    st.session_state.last_period = None
-
 st.set_page_config(page_title="StockWise", layout="wide")
+
+if "last_period" not in st.session_state:
+    st.session_state["last_period"] = None
+
 
 def search_company(query):
     try:
@@ -164,7 +164,7 @@ def get_intraday_data(ticker):
     return data
 
 
-def display_price_and_refresh(data, ticker):
+def display_price_and_refresh(data, ticker, key=None):
     current_price = get_realtime_price(ticker)
     if current_price is None:
         return False
@@ -180,7 +180,7 @@ def display_price_and_refresh(data, ticker):
         )
     with col2:
         st.write("\n")
-        return st.button("Refresh Price", key=f"refresh_button_{ticker}_{st.session_state.current_period}")
+        return st.button("Refresh Price", key=key)
 
 
 def update_intraday_graph(ticker):
@@ -261,20 +261,24 @@ st.write("---")
 st.subheader("Graph and News")
 
 col1, col2, col3, col4 = st.columns(4)
-if st.button("1 Day"):
-    st.session_state.last_period = "1d"
-if st.button("1 Week"):
-    st.session_state.last_period = "1wk"
-if st.button("1 Month"):
-    st.session_state.last_period = "1mo"
-if st.button("1 Year"):
-    st.session_state.last_period = "1y"
+with col1:
+    if st.button("1 Day"):
+        st.session_state["last_period"] = "1d"
+with col2:
+    if st.button("1 Week"):
+        st.session_state["last_period"] = "1wk"
+with col3:
+    if st.button("1 Year"):
+        st.session_state["last_period"] = "1y"
+with col4:
+    if st.button("All Time"):
+        st.session_state["last_period"] = "max"
 
 
 def display_graph(data, ticker, period):
     fig = go.Figure()
     performance = data["Close"].iloc[-1] > data["Close"].iloc[0]
-    line_color = "lime" if performance else "red"
+    line_color = "green" if performance else "red"
     fig.add_trace(
         go.Scatter(
             x=data.index,
@@ -309,32 +313,36 @@ def display_graph(data, ticker, period):
 
 
 if st.session_state["last_period"]:
-   refresh_clicked = display_price_and_refresh(data, ticker)
-   if st.session_state["last_period"] == "1d":
+    if st.session_state["last_period"] == "1d":
+        refresh_clicked = display_price_and_refresh(
+            data, ticker, key=f"{ticker}_price_refresh"
+        )
         graph_placeholder = st.empty()
 
         while True:
             fig = update_intraday_graph(ticker)
             graph_placeholder.plotly_chart(fig, use_container_width=True)
             time.sleep(60)  # Update every minute
-   else:
+    else:
         data = get_stock_data(ticker, st.session_state["last_period"])
         if data is not None and len(data) >= 2:
-            refresh_clicked = display_price_and_refresh(data, ticker)
+            refresh_clicked = display_price_and_refresh(
+                data, ticker, key=f"{ticker}_price_refresh_time"
+            )
             display_graph(data, ticker, st.session_state["last_period"])
 
             if refresh_clicked:
                 st.experimental_rerun()
 
-   news = get_news(ticker)
-   st.subheader(f"Recent News for {ticker}")
-   for article in news[:5]:
-       st.write(f"**{article['title']}**")
-       st.write(
-           f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
-       )
-       st.write(article["link"])
-       st.write("---")
+    news = get_news(ticker)
+    st.subheader(f"Recent News for {ticker}")
+    for article in news[:5]:
+        st.write(f"**{article['title']}**")
+        st.write(
+            f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
+        )
+        st.write(article["link"])
+        st.write("---")
 
 st.write("---")
 st.subheader("Financial Statements")
