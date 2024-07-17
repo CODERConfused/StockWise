@@ -181,7 +181,7 @@ def display_price_and_refresh(data, ticker):
         )
     with col2:
         st.write("\n")
-        return st.button("Refresh Price")
+        return st.button("Refresh Price", key=f"refresh_button_{ticker}")
 
 
 def update_intraday_graph(ticker):
@@ -314,7 +314,7 @@ def display_graph(data, ticker, period):
 
 
 if st.session_state["last_period"]:
-    refresh_clicked = display_price_and_refresh(data, ticker)
+   refresh_clicked = display_price_and_refresh(data, ticker, key=f"price_refresh_{ticker}")
     if st.session_state["last_period"] == "1d":
         graph_placeholder = st.empty()
 
@@ -325,7 +325,7 @@ if st.session_state["last_period"]:
     else:
         data = get_stock_data(ticker, st.session_state["last_period"])
         if data is not None and len(data) >= 2:
-            refresh_clicked = display_price_and_refresh(data, ticker)
+            refresh_clicked = display_price_and_refresh(data, ticker, key=f"price_refresh_{ticker}")
             display_graph(data, ticker, st.session_state["last_period"])
 
             if refresh_clicked:
