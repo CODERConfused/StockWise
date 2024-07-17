@@ -315,7 +315,7 @@ def display_graph(data, ticker, period):
 
 if st.session_state["last_period"]:
    refresh_clicked = display_price_and_refresh(data, ticker, key=f"price_refresh_{ticker}")
-    if st.session_state["last_period"] == "1d":
+   if st.session_state["last_period"] == "1d":
         graph_placeholder = st.empty()
 
         while True:
