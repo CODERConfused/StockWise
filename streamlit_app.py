@@ -322,7 +322,7 @@ if st.session_state["last_period"]:
             fig = update_intraday_graph(ticker)
             graph_placeholder.plotly_chart(fig, use_container_width=True)
             time.sleep(60)  # Update every minute
-    else:
+   else:
         data = get_stock_data(ticker, st.session_state["last_period"])
         if data is not None and len(data) >= 2:
             refresh_clicked = display_price_and_refresh(data, ticker, key=f"price_refresh_{ticker}")
