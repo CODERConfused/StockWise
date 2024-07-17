@@ -165,7 +165,7 @@ def get_intraday_data(ticker):
     return data
 
 
-def display_price_and_refresh(data, ticker):
+def display_price_and_refresh(data, ticker, key = None):
     current_price = get_realtime_price(ticker)
     if current_price is None:
         return False
