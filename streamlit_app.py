@@ -331,15 +331,15 @@ if st.session_state["last_period"]:
             if refresh_clicked:
                 st.experimental_rerun()
 
-    news = get_news(ticker)
-    st.subheader(f"Recent News for {ticker}")
-    for article in news[:5]:
-        st.write(f"**{article['title']}**")
-        st.write(
-            f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
-        )
-        st.write(article["link"])
-        st.write("---")
+   news = get_news(ticker)
+   st.subheader(f"Recent News for {ticker}")
+   for article in news[:5]:
+       st.write(f"**{article['title']}**")
+       st.write(
+           f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
+       )
+       st.write(article["link"])
+       st.write("---")
 
 st.write("---")
 st.subheader("Financial Statements")
