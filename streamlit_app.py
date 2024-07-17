@@ -266,7 +266,7 @@ with col1:
         st.session_state["last_period"] = "1d"
 with col2:
     if st.button("1 Week"):
-        st.session_state["last_period"] = "1wk"
+        st.session_state["last_period"] = "5d"
 with col3:
     if st.button("1 Year"):
         st.session_state["last_period"] = "1y"
