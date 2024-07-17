@@ -239,7 +239,7 @@ if data is not None:
     stock_info = get_stock_info(ticker)
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.subheader(f"About {ticker}")
+        st.header(f"About {ticker}")
     with col2:
         st.markdown(
             f"<div style='background-color: {change_color}; color: white; padding: 10px; border-radius: 5px; display: inline-block;'>Change: {percent_change:.2f}%</div>",
