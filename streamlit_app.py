@@ -188,7 +188,7 @@ def update_intraday_graph(ticker):
     fig = go.Figure()
 
     performance = data["Close"].iloc[-1] > data["Open"].iloc[0]
-    line_color = "lime" if performance else "red"
+    line_color = "green" if performance else "red"
 
     fig.add_trace(
         go.Scatter(
