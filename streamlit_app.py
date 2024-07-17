@@ -9,11 +9,10 @@ from sklearn.model_selection import TimeSeriesSplit
 from xgboost import XGBRegressor
 import time
 
+if 'last_period' not in st.session_state:
+    st.session_state.last_period = None
+
 st.set_page_config(page_title="StockWise", layout="wide")
-
-if 'current_period' not in st.session_state:
-    st.session_state.current_period = '1d'  # Default to 1 day
-
 
 def search_company(query):
     try:
@@ -263,13 +262,13 @@ st.subheader("Graph and News")
 
 col1, col2, col3, col4 = st.columns(4)
 if st.button("1 Day"):
-    st.session_state.current_period = "1d"
+    st.session_state.last_period = "1d"
 if st.button("1 Week"):
-    st.session_state.current_period = "1wk"
+    st.session_state.last_period = "1wk"
 if st.button("1 Month"):
-    st.session_state.current_period = "1mo"
+    st.session_state.last_period = "1mo"
 if st.button("1 Year"):
-    st.session_state.current_period = "1y"
+    st.session_state.last_period = "1y"
 
 
 def display_graph(data, ticker, period):
