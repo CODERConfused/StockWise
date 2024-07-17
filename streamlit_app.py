@@ -4,8 +4,6 @@ import datetime
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
-from keras.layers import Dense, LSTM
 import plotly.graph_objs as go
 from sklearn.model_selection import TimeSeriesSplit
 from xgboost import XGBRegressor
