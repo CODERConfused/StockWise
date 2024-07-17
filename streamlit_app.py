@@ -363,52 +363,46 @@ predict_button = st.button("Predict Next 5 Days")
 
 if predict_button:
     st.write(f"Predicting next 5 days for {ticker}")
-    try:
-        with st.spinner("Making predictions..."):
-            predictions = predict_stock(ticker)
-        if predictions is not None and not predictions.empty:
-            st.success("Predictions complete!")
+    with st.spinner("Making predictions..."):
+        predictions = predict_stock(ticker)
+    if predictions is not None:
+        st.success("Predictions complete!")
 
-            future_dates = pd.date_range(
-                start=data.index[-1] + pd.Timedelta(days=1), periods=5
+        future_dates = pd.date_range(
+            start=data.index[-1] + pd.Timedelta(days=1), periods=5
+        )
+        future_df = pd.DataFrame(
+            index=future_dates, data=predictions, columns=["Predicted Close"]
+        )
+
+        combined_df = pd.concat([data["Close"], future_df["Predicted Close"]])
+
+        fig = go.Figure()
+        fig.add_trace(
+            go.Scatter(
+                x=data.index,
+                y=data["Close"],
+                name="Historical",
+                line=dict(
+                    color=(
+                        "green"
+                        if data["Close"].iloc[-1] > data["Close"].iloc[0]
+                        else "red"
+                    )
+                ),
             )
-            future_df = pd.DataFrame(
-                index=future_dates, data=predictions, columns=["Predicted Close"]
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=future_dates,
+                y=predictions,
+                name="Prediction",
+                line=dict(color="blue"),
             )
-    
-            combined_df = pd.concat([data["Close"], future_df["Predicted Close"]])
-    
-            fig = go.Figure()
-            fig.add_trace(
-                go.Scatter(
-                    x=data.index,
-                    y=data["Close"],
-                    name="Historical",
-                    line=dict(
-                        color=(
-                            "green"
-                            if data["Close"].iloc[-1] > data["Close"].iloc[0]
-                            else "red"
-                        )
-                    ),
-                )
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=future_dates,
-                    y=predictions,
-                    name="Prediction",
-                    line=dict(color="blue"),
-                )
-            )
-            fig.update_layout(
-                title=f"{ticker} Stock Price Prediction",
-                xaxis_title="Date",
-                yaxis_title="Price",
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        
-        else:
-            st.warning("Unable to generate predictions. The stock might not have enough historical data.")
-    except Exception as e:
-        st.error(f"An error occurred during prediction: {str(e)}")
+        )
+        fig.update_layout(
+            title=f"{ticker} Stock Price Prediction",
+            xaxis_title="Date",
+            yaxis_title="Price",
+        )
+        st.plotly_chart(fig, use_container_width=True)
