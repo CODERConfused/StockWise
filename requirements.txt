@@ -1,4 +1,4 @@
---upgrade pip
+pip
 streamlit
 yfinance
 pandas
