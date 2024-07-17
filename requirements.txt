@@ -1,1 +1,7 @@
 streamlit
+yfinance
+pandas
+numpy
+plotly
+scikit
+xgboost
