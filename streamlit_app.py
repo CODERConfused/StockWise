@@ -7,6 +7,7 @@ import plotly.graph_objs as go
 from sklearn.model_selection import TimeSeriesSplit
 from xgboost import XGBRegressor
 import time
+from requests.exceptions import RequestException
 
 st.set_page_config(page_title="StockWise", layout="wide")
 
@@ -45,10 +46,40 @@ def get_stock_data(ticker, period):
         return None
 
 
-def get_news(ticker):
+def get_news(ticker, max_retries=3, retry_delay=1):
     stock = yf.Ticker(ticker)
-    news = stock.news
-    return news
+    for attempt in range(max_retries):
+        try:
+            news = stock.news
+            if news:
+                return news
+            else:
+                time.sleep(retry_delay)
+                stock = yf.Ticker(ticker)  # Reinitialize the Ticker object
+                continue
+        except (RequestException, ValueError, AttributeError) as e:
+            if attempt < max_retries - 1:
+                time.sleep(retry_delay)
+                stock = yf.Ticker(ticker)  # Reinitialize the Ticker object
+            else:
+                st.warning(
+                    f"Unable to fetch news for {ticker} after {max_retries} attempts."
+                )
+                return [
+                    {
+                        "title": f"News unavailable for {ticker}",
+                        "link": "",
+                        "providerPublishTime": time.time(),
+                    }
+                ]
+
+    return [
+        {
+            "title": f"No news found for {ticker}",
+            "link": "",
+            "providerPublishTime": time.time(),
+        }
+    ]
 
 
 def get_stock_info(ticker):
@@ -334,15 +365,16 @@ if st.session_state["last_period"]:
             if refresh_clicked:
                 st.experimental_rerun()
 
-    news = get_news(ticker)
-    st.subheader(f"Recent News for {ticker}")
-    for article in news[:5]:
-        st.write(f"**{article['title']}**")
-        st.write(
-            f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
-        )
-        st.write(article["link"])
-        st.write("---")
+        news = get_news(ticker)
+        st.subheader(f"Recent News for {ticker}")
+        for article in news[:5]:
+            st.write(f"**{article['title']}**")
+            if article["link"]:
+                st.write(
+                    f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
+                )
+                st.write(article["link"])
+            st.write("---")
 
 st.write("---")
 st.subheader("Financial Statements")
