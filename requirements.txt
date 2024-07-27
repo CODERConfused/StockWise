@@ -6,3 +6,4 @@ numpy
 plotly
 scikit-learn
 xgboost
+openai
