@@ -265,21 +265,43 @@ def get_valid_response(prompt, max_attempts):
     return "Unable to generate a valid response. Please try again."
 
 
-def stock_chatbot(user_input):
-    prompt = f"Provide a single, concise response for the user based on this question: {user_input}. Limit your answer to a couple short sentences. Answer only once."
-    response = get_valid_response(prompt, 1)
+def get_stock_context(ticker):
+    stock = yf.Ticker(ticker)
+    news = stock.news[:5]  # Get the latest 5 news articles
+    data = stock.history(period="1mo")  # Get last month's stock data
+    info = stock.info
 
-    # Ensure we only return the first sentence
-    first_sentence = response.split(".")[0] + "."
-    return first_sentence
+    context = f"Latest stock price: ${data['Close'].iloc[-1]:.2f}\n"
+    context += f"Analyst Rating: {info.get('recommendationKey', 'N/A')}\n\n"
+    context += "Recent News:\n"
+    for article in news:
+        context += f"- {article['title']}\n"
+
+    return context
+
+
+def stock_chatbot(user_input, ticker):
+    stock_context = get_stock_context(ticker)
+    prompt = f"""Based on the following context about {ticker}:
+
+    {stock_context}
+
+    User question: {user_input}
+
+    Provide a concise, informative response in 2-3 sentences."""
+
+    response = get_valid_response(prompt, 3)
+    return response.strip()
 
 
 def submit_input():
-    if st.session_state.user_input:
+    if st.session_state.user_input and "current_ticker" in st.session_state:
         st.session_state.messages.append(
             {"role": "user", "content": st.session_state.user_input}
         )
-        response = stock_chatbot(st.session_state.user_input)
+        response = stock_chatbot(
+            st.session_state.user_input, st.session_state.current_ticker
+        )
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.user_input = ""
 
@@ -297,12 +319,12 @@ with chatbot_sidebar:
     for message in st.session_state.messages:
         if message["role"] == "user":
             st.markdown(
-                f"<div style='background-color: #3B3390; color: #C7C7C7; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>User:</strong> {message['content']}</div>",
+                f"<div style='background-color: #3C3D3F; color: #B2B4B5; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>User:</strong> {message['content']}</div>",
                 unsafe_allow_html=True,
             )
         else:
             st.markdown(
-                f"<div style='background-color: #3B3390; color: #C7C7C7; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>Chatbot:</strong> {message['content']}</div>",
+                f"<div style='background-color: #E54B2A; color: #012347; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>Chatbot:</strong> {message['content']}</div>",
                 unsafe_allow_html=True,
             )
 
@@ -315,7 +337,7 @@ with chatbot_sidebar:
 
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
-        response = stock_chatbot(user_input)
+        response = stock_chatbot(user_input, ticker)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.session_state.user_input = ""  # Clear the input
         st.experimental_rerun()
@@ -323,6 +345,7 @@ with chatbot_sidebar:
 data = None
 if ticker:
     st.write(f"Found ticker: {ticker}")
+    st.session_state.current_ticker = ticker
     data = get_stock_data(ticker, "max")
     if data is None:
         st.stop()
