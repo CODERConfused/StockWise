@@ -7,5 +7,5 @@ plotly
 scikit-learn
 xgboost
 openai
-g4f
+g4f curl-cffi
 langdetect
