@@ -8,11 +8,19 @@ from sklearn.model_selection import TimeSeriesSplit
 from xgboost import XGBRegressor
 import time
 from requests.exceptions import RequestException
+from openai import OpenAI
+from g4f.client import Client
+import g4f
+import os
+import re
+import langdetect
 
 st.set_page_config(page_title="StockWise", layout="wide")
 
 if "last_period" not in st.session_state:
     st.session_state["last_period"] = None
+
+chatbot_sidebar = st.sidebar.container()
 
 
 def search_company(query):
@@ -244,10 +252,65 @@ def update_intraday_graph(ticker):
     return fig
 
 
+def get_valid_response(prompt, max_attempts):
+    for _ in range(max_attempts):
+        response = g4f.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        if isinstance(response, str) and langdetect.detect(response) == "en":
+            return response.strip()
+
+    return "Unable to generate a valid response. Please try again."
+
+
+def stock_chatbot(user_input):
+    prompt = f"Provide a single, concise response for the user based on this question: {user_input}. Limit your answer to a couple short sentences. Answer only once."
+    response = get_valid_response(prompt, 1)
+
+    # Ensure we only return the first sentence
+    first_sentence = response.split(".")[0] + "."
+    return first_sentence
+
+
+def submit_input():
+    if st.session_state.user_input:
+        st.session_state.messages.append(
+            {"role": "user", "content": st.session_state.user_input}
+        )
+        response = stock_chatbot(st.session_state.user_input)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.user_input = ""
+
+
 st.title("Stock Data, News, and Prediction Viewer")
 
 query = st.text_input("Enter a stock ticker or company name (e.g., AAPL, Apple):")
 ticker = search_company(query)
+
+with chatbot_sidebar:
+    st.header("StockWise AI Chatbot")
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    for message in st.session_state.messages:
+        st.write(
+            f"{'User' if message['role'] == 'user' else 'Chatbot'}: {message['content']}"
+        )
+
+    if "user_input" not in st.session_state:
+        st.session_state.user_input = ""
+
+    user_input = st.text_input(
+        "Ask me about the stock:", key="user_input", on_change=submit_input
+    )
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        response = stock_chatbot(user_input)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.user_input = ""  # Clear the input
+        st.experimental_rerun()
 
 data = None
 if ticker:
