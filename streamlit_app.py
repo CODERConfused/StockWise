@@ -295,15 +295,34 @@ with chatbot_sidebar:
         st.session_state.messages = []
 
     for message in st.session_state.messages:
-        st.write(
-            f"{'User' if message['role'] == 'user' else 'Chatbot'}: {message['content']}"
-        )
+        if message["role"] == "user":
+            st.markdown(
+                f"<div style='background-color: #3C3D3F; color: #B2B4B5; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>User:</strong> {message['content']}</div>",
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f"<div style='background-color: #E54B2A; color: #012347; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>Chatbot:</strong> {message['content']}</div>",
+                unsafe_allow_html=True,
+            )
 
     if "user_input" not in st.session_state:
         st.session_state.user_input = ""
 
     user_input = st.text_input(
         "Ask me about the stock:", key="user_input", on_change=submit_input
+    )
+
+    st.markdown(
+        """
+        <style>
+        .stTextInput > div > div > input {
+            background-color: #3C3D3F;
+            color: #B2B4B5;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
