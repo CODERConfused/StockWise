@@ -467,7 +467,7 @@ if st.session_state["last_period"]:
             display_graph(data, ticker, st.session_state["last_period"])
 
             if refresh_clicked:
-                st.experimental_rerun()
+                st.experimental_run()
 
         news = get_news(ticker)
         st.subheader(f"Recent News for {ticker}")
