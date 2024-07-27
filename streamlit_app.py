@@ -108,7 +108,7 @@ def get_stock_info(ticker):
 
 def predict_stock(ticker):
     tss = TimeSeriesSplit(n_splits=300)
-    data = yf.download(ticker, period="max")
+    data = yf.download(ticker, period="6y")
 
     def split_fit(data, model, predictors):
         for _ in tss.split(data):
