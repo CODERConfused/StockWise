@@ -231,9 +231,12 @@ def update_intraday_graph(ticker):
     if data.empty:
         fig.add_annotation(
             text="Today is not a trading day or no data available.",
-            xref="paper", yref="paper",
-            x=0.5, y=0.5, showarrow=False,
-            font=dict(size=20, color="white")
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+            font=dict(size=20, color="white"),
         )
     else:
         performance = data["Close"].iloc[-1] > data["Open"].iloc[0]
@@ -467,20 +470,9 @@ if st.session_state["last_period"]:
             display_graph(data, ticker, st.session_state["last_period"])
 
             if refresh_clicked:
-                st.experimental_run()
+                st.rerun()
 
-        news = get_news(ticker)
-        st.subheader(f"Recent News for {ticker}")
-        for article in news[:5]:
-            st.write(f"**{article['title']}**")
-            if article["link"]:
-                st.write(
-                    f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
-                )
-                st.write(article["link"])
-            st.write("---")
-
-st.write("---")
+sst.write("---")
 st.subheader("Financial Statements")
 financials_button = st.button("Show Financial Statements")
 
@@ -492,6 +484,22 @@ if financials_button:
     st.dataframe(stock.balance_sheet)
     st.subheader("Cash Flow")
     st.dataframe(stock.cashflow)
+
+st.write("---")
+st.subheader("Latest News")
+news_button = st.button("Show Latest News")
+
+if news_button:
+    news = get_news(ticker)
+    st.subheader(f"Recent News for {ticker}")
+    for article in news[:5]:
+        st.write(f"**{article['title']}**")
+        if article["link"]:
+            st.write(
+                f"Published on: {datetime.datetime.fromtimestamp(article['providerPublishTime'])}"
+            )
+            st.write(article["link"])
+        st.write("---")
 
 st.write("---")
 st.subheader("Stock Price Forecast")
