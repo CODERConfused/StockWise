@@ -107,8 +107,17 @@ def get_stock_info(ticker):
 
 
 def predict_stock(ticker):
-    tss = TimeSeriesSplit(n_splits=300)
     data = yf.download(ticker, period="6y")
+
+    if len(data) < 300:
+        st.warning(
+            f"Not enough historical data for {ticker}. Using available data for prediction."
+        )
+        n_splits = max(2, len(data) // 50)  # Ensure at least 2 splits
+    else:
+        n_splits = 300
+
+    tss = TimeSeriesSplit(n_splits=n_splits)
 
     def split_fit(data, model, predictors):
         for _ in tss.split(data):
