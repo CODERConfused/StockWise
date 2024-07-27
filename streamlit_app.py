@@ -226,18 +226,26 @@ def update_intraday_graph(ticker):
     data = get_intraday_data(ticker)
     fig = go.Figure()
 
-    performance = data["Close"].iloc[-1] > data["Open"].iloc[0]
-    line_color = "green" if performance else "red"
-
-    fig.add_trace(
-        go.Scatter(
-            x=data.index,
-            y=data["Close"],
-            mode="lines",
-            name="Price",
-            line=dict(color=line_color),
+    if data.empty:
+        fig.add_annotation(
+            text="Today is not a trading day or no data available.",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=20, color="white")
         )
-    )
+    else:
+        performance = data["Close"].iloc[-1] > data["Open"].iloc[0]
+        line_color = "green" if performance else "red"
+
+        fig.add_trace(
+            go.Scatter(
+                x=data.index,
+                y=data["Close"],
+                mode="lines",
+                name="Price",
+                line=dict(color=line_color),
+            )
+        )
 
     fig.update_layout(
         title=f"{ticker} Intraday Price",
