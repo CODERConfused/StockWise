@@ -206,7 +206,9 @@ def get_intraday_data(ticker):
 def display_price_and_refresh(data, ticker, key=None):
     current_price = get_realtime_price(ticker)
     if current_price is None:
+        st.warning("Today is not a trading day or market is closed.")
         return False
+
     price_change = current_price - data["Close"].iloc[-1]
     price_change_percent = (price_change / data["Close"].iloc[-1]) * 100
     color = "green" if price_change >= 0 else "red"
