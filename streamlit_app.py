@@ -107,15 +107,9 @@ def get_stock_info(ticker):
 
 
 def predict_stock(ticker):
-    data = yf.download(ticker, period="6y")
+    data = yf.download(ticker, period="max")
 
-    if len(data) < 300:
-        st.warning(
-            f"Not enough historical data for {ticker}. Using available data for prediction."
-        )
-        n_splits = max(2, len(data) // 50)  # Ensure at least 2 splits
-    else:
-        n_splits = 300
+    n_splits = min(5, len(data) // 20)
 
     tss = TimeSeriesSplit(n_splits=n_splits)
 
@@ -188,7 +182,7 @@ def predict_stock(ticker):
         "Daily Return",
         "Price Dir",
     ]
-    xgb = XGBRegressor()
+    xgb = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=3)
 
     future_predictions = model(data, xgb, predictors, "Close", future_days=5)
 
