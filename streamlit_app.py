@@ -297,12 +297,12 @@ with chatbot_sidebar:
     for message in st.session_state.messages:
         if message["role"] == "user":
             st.markdown(
-                f"<div style='background-color: #3C3D3F; color: #B2B4B5; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>User:</strong> {message['content']}</div>",
+                f"<div style='background-color: #3B3390; color: #012347; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>User:</strong> {message['content']}</div>",
                 unsafe_allow_html=True,
             )
         else:
             st.markdown(
-                f"<div style='background-color: #E54B2A; color: #012347; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>Chatbot:</strong> {message['content']}</div>",
+                f"<div style='background-color: #3B3390; color: #012347; padding: 10px; border-radius: 5px; margin-bottom: 10px;'><strong>Chatbot:</strong> {message['content']}</div>",
                 unsafe_allow_html=True,
             )
 
