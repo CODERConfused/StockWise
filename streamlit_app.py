@@ -472,7 +472,7 @@ if st.session_state["last_period"]:
             if refresh_clicked:
                 st.rerun()
 
-sst.write("---")
+st.write("---")
 st.subheader("Financial Statements")
 financials_button = st.button("Show Financial Statements")
 
