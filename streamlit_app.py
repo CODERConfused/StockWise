@@ -396,7 +396,7 @@ if data is not None:
                 col2.metric(key, value)
 
 st.write("---")
-st.subheader("Graph and News")
+st.subheader("Graph")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
