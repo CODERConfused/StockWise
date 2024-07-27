@@ -185,7 +185,6 @@ def predict_stock(ticker):
 
     return future_predictions
 
-
 def get_realtime_price(ticker):
     try:
         stock = yf.Ticker(ticker)
