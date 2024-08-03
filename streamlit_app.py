@@ -282,7 +282,7 @@ def get_valid_response(prompt, max_attempts):
 
 def get_stock_context(ticker):
     stock = yf.Ticker(ticker)
-    news = stock.news[:8]  # Get the latest 8 news articles
+    news = stock.news[:5]  # Get the latest 8 news articles
     data = stock.history(period="1mo")  # Get last month's stock data
     info = stock.info
 
