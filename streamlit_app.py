@@ -208,5 +208,78 @@ def display_price_and_refresh(data, ticker, key=None):
     with col1:
         st.markdown(
             f"<h2 style='text-align: center; color: {color};'>{current_price:.2f} USD ({price_change_percent:.2f}%)</h2>",
-            unsafe_allow_html
+            unsafe_allow_html=True,
+        )
+    with col2:
+        st.write("\n")
+        return st.button("Refresh Price", key=key)
+
+
+def update_intraday_graph(ticker):
+    data = get_intraday_data(ticker)
+    fig = go.Figure()
+
+    if data.empty:
+        fig.add_annotation(
+            text="Today is not a trading day or no data available.",
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+            font=dict(size=20, color="white"),
+        )
+    else:
+        performance = data["Close"].iloc[-1] > data["Open"].iloc[0]
+        line_color = "green" if performance else "red"
+
+        fig.add_trace(
+            go.Scatter(
+                x=data.index,
+                y=data["Close"],
+                mode="lines",
+                name="Price",
+                line=dict(color=line_color),
+            )
+        )
+
+    fig.update_layout(
+        title=f"{ticker} Intraday Price",
+        xaxis_title="Time",
+        yaxis_title="Price",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="white"),
+        yaxis=dict(gridcolor="gray"),
+        xaxis=dict(gridcolor="gray"),
+    )
+    return fig
+
+
+def stock_chatbot(user_input, ticker):
+    stock_context = get_stock_context(ticker)
+    prompt = f"""Based on the following context about {ticker}: 
+
+    {stock_context} 
+
+    User question: {user_input} 
+
+    Provide a concise, informative response in 2-3 sentences.""" 
+
+    response = get_valid_response(prompt, 3) 
+    return response.strip()
+
+
+def get_valid_response(prompt, max_attempts): 
+    for _ in range(max_attempts): 
+        response = g4f.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        if isinstance(response, str) and langdetect.detect(response) == "en":
+            return response.strip()
+
+    return "Unable to generate a valid response. Please try again."
+
 
