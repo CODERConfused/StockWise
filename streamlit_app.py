@@ -374,8 +374,8 @@ if data is not None:
         st.stop()
     yesterday_close = data["Close"].iloc[-2]
     percent_change = ((current_price - yesterday_close) / yesterday_close) * 100
+    percent_change = ((current_price - yesterday_close) / yesterday_close).iloc[0]
     change_color = "green" if percent_change > 0 else "red"
-
 
     stock_info = get_stock_info(ticker)
     col1, col2 = st.columns([3, 1])
