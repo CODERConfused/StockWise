@@ -376,6 +376,7 @@ if data is not None:
     percent_change = ((current_price - yesterday_close) / yesterday_close) * 100
     change_color = "green" if percent_change > 0 else "red"
 
+
     stock_info = get_stock_info(ticker)
     col1, col2 = st.columns([3, 1])
     with col1:
